@@ -2,7 +2,6 @@ package io.github.isadorabello.user.infrastructure.security;
 
 import io.github.isadorabello.user.infrastructure.entity.Usuario;
 import io.github.isadorabello.user.infrastructure.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,18 +10,25 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    @Autowired
-    private UsuarioRepository repository;
+    // Repositório para acessar dados de usuário no banco de dados
 
-    public UserDetailsServiceImpl(UsuarioRepository repository) {
-        this.repository = repository;
+    private final UsuarioRepository usuarioRepository;
+
+    public UserDetailsServiceImpl(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
     }
 
+    // Implementação do método para carregar detalhes do usuário pelo e-mail
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        // Busca o usuário no banco de dados pelo e-mail
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
 
-        Usuario usuario = repository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
-
-        return org.springframework.security.core.userdetails.User.withUsername(usuario.getEmail()).password(usuario.getSenha()).build();
+        // Cria e retorna um objeto UserDetails com base no usuário encontrado
+        return org.springframework.security.core.userdetails.User
+                .withUsername(usuario.getEmail()) // Define o nome de usuário como o e-mail
+                .password(usuario.getSenha()) // Define a senha do usuário
+                .build(); // Constrói o objeto UserDetails
     }
 }
