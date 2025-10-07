@@ -1,11 +1,17 @@
 package io.github.isadorabello.user.business.service;
 
 import io.github.isadorabello.user.business.converter.UsuarioConverter;
+import io.github.isadorabello.user.business.dto.EnderecoDTO;
+import io.github.isadorabello.user.business.dto.TelefoneDTO;
 import io.github.isadorabello.user.business.dto.UsuarioDTO;
+import io.github.isadorabello.user.infrastructure.entity.Endereco;
+import io.github.isadorabello.user.infrastructure.entity.Telefone;
 import io.github.isadorabello.user.infrastructure.entity.Usuario;
 import io.github.isadorabello.user.infrastructure.exception.ConflictException;
 import io.github.isadorabello.user.infrastructure.exception.ResourceNotFoundException;
 import io.github.isadorabello.user.infrastructure.exception.UnauthorizedException;
+import io.github.isadorabello.user.infrastructure.repository.EnderecoRepository;
+import io.github.isadorabello.user.infrastructure.repository.TelefoneRepository;
 import io.github.isadorabello.user.infrastructure.repository.UsuarioRepository;
 import io.github.isadorabello.user.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +33,8 @@ public class UsuarioService {
     private final PasswordEncoder encoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final TelefoneRepository telefoneRepository;
+    private final EnderecoRepository enderecoRepository;
 
     public UsuarioDTO salvaUsuario (UsuarioDTO dto){
         emailExiste(dto.email());
@@ -77,5 +85,52 @@ public class UsuarioService {
         } catch (BadCredentialsException | UsernameNotFoundException | AuthorizationDeniedException e) {
             throw new UnauthorizedException("Usuário ou senha inválidos: ", e.getCause());
         }
+    }
+
+    public UsuarioDTO atualizaUsuario(String token, UsuarioDTO dto){
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+
+        UsuarioDTO usuarioDTO = new UsuarioDTO(
+                dto.nome(),
+                dto.email(),
+                dto.senha() != null ? encoder.encode(dto.senha()) : null,
+                dto.enderecos(),
+                dto.telefones());
+
+        Usuario entity = usuarioRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("Usuario não encontrado " + email));
+
+        entity = converter.paraAtualizarUsuario(usuarioDTO, entity);
+
+        return converter.paraUsuarioDTO(usuarioRepository.save(entity));
+    }
+
+    public EnderecoDTO atualizarEndereco (Long id, EnderecoDTO dto){
+        Endereco endereco = enderecoRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Endereço não encontrado " + id));
+        endereco = converter.paraAtualizarEndereco(dto, endereco);
+        return  converter.paraEnderecoDTO(enderecoRepository.save(endereco));
+    }
+
+    public TelefoneDTO atualizarTelefone (Long id, TelefoneDTO dto){
+        Telefone telefone = telefoneRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Telefone não encontrado " + id));
+        telefone = converter.paraAtualizarTelefone(dto, telefone);
+        return  converter.paraTelefoneDTO(telefoneRepository.save(telefone));
+    }
+
+    public TelefoneDTO salvarTelefone(String token, TelefoneDTO dto){
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() ->
+                new ResourceNotFoundException("Email não localizado " + email));
+
+        Telefone telefone = converter.paraNovoTelefone(dto, usuario.getId());
+        return converter.paraTelefoneDTO(telefoneRepository.save(telefone));
+    }
+
+    public EnderecoDTO salvarEndereco(String token, EnderecoDTO dto){
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() ->
+                new ResourceNotFoundException("Email não localizado " + email));
+
+        Endereco endereco = converter.paraNovoEndereco(dto, usuario.getId());
+        return converter.paraEnderecoDTO(enderecoRepository.save(endereco));
     }
 }

@@ -1,5 +1,7 @@
 package io.github.isadorabello.user.controller;
 
+import io.github.isadorabello.user.business.dto.EnderecoDTO;
+import io.github.isadorabello.user.business.dto.TelefoneDTO;
 import io.github.isadorabello.user.business.dto.UsuarioDTO;
 import io.github.isadorabello.user.business.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,31 @@ public class UsuarioController {
     public ResponseEntity<Void> deletaUsuarioPorEmail(@PathVariable String email){
         service.deletarUsuarioPorEmail(email);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping
+    public ResponseEntity<UsuarioDTO> atualizarUsuario (@RequestHeader("Authorization") String token, @RequestBody UsuarioDTO dto){
+        return ResponseEntity.ok(service.atualizaUsuario(token, dto));
+    }
+
+    @PutMapping("/telefone")
+    public ResponseEntity<TelefoneDTO> atualizarTelefone (@RequestParam("id") Long id, @RequestBody TelefoneDTO dto){
+        return ResponseEntity.ok(service.atualizarTelefone(id, dto));
+    }
+
+    @PutMapping("/endereco")
+    public ResponseEntity<EnderecoDTO> atualizarEndereco (@RequestParam("id") Long id, @RequestBody EnderecoDTO dto){
+        return ResponseEntity.ok(service.atualizarEndereco(id, dto));
+    }
+
+    @PostMapping("/endereco")
+    public ResponseEntity<EnderecoDTO> salvaEndereco(@RequestHeader("Authorization") String token, @RequestBody EnderecoDTO dto){
+        return ResponseEntity.ok(service.salvarEndereco(token, dto));
+    }
+
+    @PostMapping("/telefone")
+    public ResponseEntity<TelefoneDTO> salvaTelefone(@RequestHeader("Authorization") String token, @RequestBody TelefoneDTO dto){
+        return ResponseEntity.ok(service.salvarTelefone(token, dto));
     }
 
 }
