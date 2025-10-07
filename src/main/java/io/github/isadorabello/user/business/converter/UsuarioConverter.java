@@ -77,4 +77,15 @@ public class UsuarioConverter {
     public TelefoneDTO paraTelefoneDTO(Telefone telefone){
         return new TelefoneDTO(telefone.getNumero(), telefone.getDdd());
     }
+
+    public Usuario paraAtualizarUsuario(UsuarioDTO dto, Usuario entity){
+        return Usuario.builder()
+                .id(entity.getId())
+                .nome(dto.nome()!= null ? dto.nome() : entity.getNome())
+                .email(dto.email()!= null ? dto.email() : entity.getEmail())
+                .senha(dto.senha()!= null ? dto.senha() : entity.getSenha())
+                .enderecos(entity.getEnderecos())
+                .telefones(entity.getTelefones())
+                .build();
+    }
 }

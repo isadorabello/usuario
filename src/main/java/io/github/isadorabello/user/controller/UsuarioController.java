@@ -34,4 +34,9 @@ public class UsuarioController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping
+    public ResponseEntity<UsuarioDTO> atualizarUsuario (@RequestHeader("Authorization") String token, @RequestBody UsuarioDTO dto){
+        return ResponseEntity.ok(service.atualizaUsuario(token, dto));
+    }
+
 }

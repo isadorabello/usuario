@@ -78,4 +78,21 @@ public class UsuarioService {
             throw new UnauthorizedException("Usuário ou senha inválidos: ", e.getCause());
         }
     }
+
+    public UsuarioDTO atualizaUsuario(String token, UsuarioDTO dto){
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+
+        UsuarioDTO usuarioDTO = new UsuarioDTO(
+                dto.nome(),
+                dto.email(),
+                dto.senha() != null ? encoder.encode(dto.senha()) : null,
+                dto.enderecos(),
+                dto.telefones());
+
+        Usuario entity = usuarioRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("Usuario não encontrado " + email));
+
+        entity = converter.paraAtualizarUsuario(usuarioDTO, entity);
+
+        return converter.paraUsuarioDTO(usuarioRepository.save(entity));
+    }
 }
