@@ -51,4 +51,14 @@ public class UsuarioController {
         return ResponseEntity.ok(service.atualizarEndereco(id, dto));
     }
 
+    @PostMapping("/endereco")
+    public ResponseEntity<EnderecoDTO> salvaEndereco(@RequestHeader("Authorization") String token, @RequestBody EnderecoDTO dto){
+        return ResponseEntity.ok(service.salvarEndereco(token, dto));
+    }
+
+    @PostMapping("/telefone")
+    public ResponseEntity<TelefoneDTO> salvaTelefone(@RequestHeader("Authorization") String token, @RequestBody TelefoneDTO dto){
+        return ResponseEntity.ok(service.salvarTelefone(token, dto));
+    }
+
 }

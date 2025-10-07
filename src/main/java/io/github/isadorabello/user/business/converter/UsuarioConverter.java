@@ -110,4 +110,26 @@ public class UsuarioConverter {
                 .usuario_id(entity.getUsuario_id())
                 .build();
     }
+
+    public Endereco paraNovoEndereco (EnderecoDTO dto, Long id){
+        return Endereco.builder()
+                .id(dto.id())
+                .rua(dto.rua())
+                .numero(dto.numero())
+                .complemento(dto.complemento())
+                .cidade(dto.cidade())
+                .cep(dto.cep())
+                .estado(dto.estado())
+                .usuario_id(id)
+                .build();
+    }
+
+    public Telefone paraNovoTelefone (TelefoneDTO dto, Long id){
+        return Telefone.builder()
+                .id(dto.id())
+                .numero(dto.numero())
+                .ddd(dto.ddd())
+                .usuario_id(id)
+                .build();
+    }
 }
